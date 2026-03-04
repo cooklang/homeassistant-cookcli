@@ -61,18 +61,18 @@ servings: 2
 
 == Monday (2026-03-09) ==
 
-Breakfast (08:00):
+Breakfast (08:00): \
 - @./Breakfast/Easy Pancakes{10%servings}
 
-Dinner:
+Dinner: \
 - @./Neapolitan Pizza{}
 
 == Wednesday (2026-03-11) ==
 
-Lunch (12:30):
+Lunch (12:30): \
 - @./Sicilian-style Scottadito Lamb Chops{}
 
-Snack:
+Snack: \
 - @crackers{1%box} with @hummus{1%cup}
 
 == Extras ==
