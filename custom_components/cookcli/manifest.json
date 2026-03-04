@@ -1,0 +1,13 @@
+{
+  "domain": "cookcli",
+  "name": "CookCLI",
+  "codeowners": ["@cooklang"],
+  "config_flow": true,
+  "documentation": "https://github.com/cooklang/homeassistant-cookcli",
+  "issue_tracker": "https://github.com/cooklang/homeassistant-cookcli/issues",
+  "integration_type": "service",
+  "iot_class": "local_polling",
+  "requirements": ["aiohttp>=3.8.0"],
+  "version": "0.1.0",
+  "homeassistant": "2024.1.0"
+}

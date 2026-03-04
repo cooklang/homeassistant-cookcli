@@ -1,0 +1,17 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to CookCLI",
+        "data": {
+          "url": "Server URL",
+          "active_menu": "Active Menu Plan (optional)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Unable to connect to CookCLI server",
+      "unknown": "Unexpected error occurred"
+    }
+  }
+}
