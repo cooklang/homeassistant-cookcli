@@ -1,0 +1,36 @@
+search_recipe:
+  name: Search recipes
+  description: Search CookCLI recipes by keyword
+  fields:
+    query:
+      name: Query
+      description: Search term
+      required: true
+      selector:
+        text:
+
+add_recipe_to_shopping_list:
+  name: Add recipe to shopping list
+  description: Add a recipe's ingredients to the shopping list
+  fields:
+    recipe:
+      name: Recipe
+      description: Recipe file path
+      required: true
+      selector:
+        text:
+    scale:
+      name: Scale
+      description: Scale factor
+      required: false
+      default: 1
+      selector:
+        number:
+          min: 0.5
+          max: 10
+          step: 0.5
+          mode: box
+
+clear_shopping_list:
+  name: Clear shopping list
+  description: Remove all items from the shopping list
