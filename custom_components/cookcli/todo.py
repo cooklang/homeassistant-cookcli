@@ -42,7 +42,7 @@ class CookCLIShoppingListTodo(CoordinatorEntity, TodoListEntity):
         items = self.coordinator.data.get("shopping_items", [])
         return [
             TodoItem(
-                uid=item["path"],
+                uid=f"{item['path']}_{i}",
                 summary=(
                     f"{item['name']} (x{item['scale']})"
                     if item.get("scale", 1) != 1
@@ -50,11 +50,13 @@ class CookCLIShoppingListTodo(CoordinatorEntity, TodoListEntity):
                 ),
                 status=TodoItemStatus.NEEDS_ACTION,
             )
-            for item in items
+            for i, item in enumerate(items)
         ]
 
     async def async_delete_todo_items(self, uids: list[str]) -> None:
         """Remove items from shopping list."""
         for uid in uids:
-            await self.coordinator.api.async_remove_from_shopping_list(uid)
+            # Extract original path (uid format: "path_index")
+            path = uid.rsplit("_", 1)[0]
+            await self.coordinator.api.async_remove_from_shopping_list(path)
         await self.coordinator.async_request_refresh()

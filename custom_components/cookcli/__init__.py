@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_URL, Platform
-from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.core import HomeAssistant, ServiceCall, SupportsResponse
 
 from .const import DOMAIN
 from .coordinator import CookCLICoordinator
@@ -38,7 +38,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         await coordinator.api.async_clear_shopping_list()
         await coordinator.async_request_refresh()
 
-    hass.services.async_register(DOMAIN, "search_recipe", handle_search)
+    hass.services.async_register(
+        DOMAIN, "search_recipe", handle_search,
+        supports_response=SupportsResponse.ONLY,
+    )
     hass.services.async_register(
         DOMAIN, "add_recipe_to_shopping_list", handle_add_recipe
     )
@@ -52,4 +55,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok:
         hass.data[DOMAIN].pop(entry.entry_id)
+        if not hass.data[DOMAIN]:
+            hass.services.async_remove(DOMAIN, "search_recipe")
+            hass.services.async_remove(DOMAIN, "add_recipe_to_shopping_list")
+            hass.services.async_remove(DOMAIN, "clear_shopping_list")
     return unload_ok

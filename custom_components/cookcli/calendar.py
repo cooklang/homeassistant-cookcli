@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.config_entries import ConfigEntry
@@ -14,7 +14,6 @@ from .const import DEFAULT_MEAL_TIMES, DOMAIN
 from .coordinator import CookCLICoordinator
 
 DATE_RE = re.compile(r"\((\d{4}-\d{2}-\d{2})\)")
-TIME_RE = re.compile(r"\((\d{2}:\d{2})\)")
 
 
 async def async_setup_entry(
@@ -95,7 +94,7 @@ class CookCLIMealPlanCalendar(CoordinatorEntity, CalendarEntity):
                     start = datetime.fromisoformat(f"{date_str}T{time_str}")
                     end = start + timedelta(hours=1)
                 else:
-                    start = datetime.fromisoformat(f"{date_str}T00:00")
+                    start = date.fromisoformat(date_str)
                     end = start + timedelta(days=1)
 
                 events.append(

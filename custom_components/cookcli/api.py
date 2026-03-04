@@ -1,6 +1,8 @@
 """CookCLI REST API client."""
 from __future__ import annotations
 
+import asyncio
+
 import aiohttp
 import async_timeout
 
@@ -29,7 +31,7 @@ class CookCLIApi:
                 )
                 resp.raise_for_status()
                 return await resp.json()
-        except aiohttp.ClientError as err:
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             raise CookCLIConnectionError(
                 f"Error communicating with CookCLI: {err}"
             ) from err
@@ -42,7 +44,7 @@ class CookCLIApi:
                     f"{self._url}{path}", json=data
                 )
                 resp.raise_for_status()
-        except aiohttp.ClientError as err:
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
             raise CookCLIConnectionError(
                 f"Error communicating with CookCLI: {err}"
             ) from err
