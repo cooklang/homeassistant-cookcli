@@ -34,3 +34,26 @@ add_recipe_to_shopping_list:
 clear_shopping_list:
   name: Clear shopping list
   description: Remove all items from the shopping list
+
+export_shopping_list:
+  name: Export shopping list
+  description: >-
+    Add the ingredients still to buy for the recipes on the CookCLI shopping
+    list to another to-do list, such as Home Assistant's Shopping List.
+    Ingredients already on that list and not yet bought are left out.
+  fields:
+    entity_id:
+      name: To-do list
+      description: The to-do list to add the ingredients to
+      required: true
+      example: todo.shopping_list
+      selector:
+        entity:
+          domain: todo
+    include_quantities:
+      name: Include quantities
+      description: Write "pasta (200 g)" rather than "pasta"
+      required: false
+      default: true
+      selector:
+        boolean:
