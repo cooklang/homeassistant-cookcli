@@ -9,7 +9,8 @@ Browse recipes, track your pantry, manage shopping lists, and plan meals — all
 ## Features
 
 - **Meal Plan Calendar** — `.menu` files mapped to HA calendar events with per-meal times
-- **Shopping List** — synced as an HA Todo entity
+- **Shopping List** — the recipes on it, and the ingredients to buy, as HA To-do lists; tick ingredients off in either place
+- **Export to HA's Shopping List** — one button copies the ingredients into any HA to-do list
 - **Pantry Alerts** — sensors for expiring and depleted items
 - **Recipe Stats** — total recipe and menu counts
 - **Services** — search recipes, add to shopping list from automations
@@ -47,7 +48,8 @@ Copy `custom_components/cookcli/` to your Home Assistant `config/custom_componen
 | `sensor.cookcli_recipes` | Sensor | Total recipe count (menu count as attribute) |
 | `sensor.cookcli_pantry_expiring` | Sensor | Number of items expiring within 7 days |
 | `sensor.cookcli_pantry_depleted` | Sensor | Number of low-stock items |
-| `todo.cookcli_shopping_list` | Todo | Shopping list with delete support |
+| `todo.cookcli_shopping_list` | Todo | Recipes on the shopping list, with delete support |
+| `todo.cookcli_shopping_ingredients` | Todo | Ingredients to buy for those recipes (pantry already subtracted); ticking one off ticks it off in CookCLI |
 | `calendar.cookcli_meal_plan` | Calendar | Meal plan from active `.menu` file |
 
 ## Calendar: Menu File Format
@@ -115,6 +117,34 @@ Remove all items from the shopping list.
 service: cookcli.clear_shopping_list
 ```
 
+### `cookcli.export_shopping_list`
+
+Copy the ingredients still to buy into another to-do list — for example Home
+Assistant's own Shopping List. Ingredients already ticked off in CookCLI, and
+ones already on the target list and not yet bought, are left out, so running it
+twice doesn't add everything twice. Optional ingredients are only included once
+you've chosen them in CookCLI.
+
+```yaml
+service: cookcli.export_shopping_list
+data:
+  entity_id: todo.shopping_list
+  include_quantities: true   # "pasta (400 g)" rather than "pasta"
+```
+
+A dashboard button for it:
+
+```yaml
+type: button
+name: Send to shopping list
+icon: mdi:cart-arrow-right
+tap_action:
+  action: perform-action
+  perform_action: cookcli.export_shopping_list
+  data:
+    entity_id: todo.shopping_list
+```
+
 ## Automation Examples
 
 **Morning meal notification:**
@@ -158,6 +188,8 @@ The integration polls CookCLI's REST API every 5 minutes via a DataUpdateCoordin
 - `GET /api/pantry/expiring?days=N`
 - `GET /api/pantry/depleted`
 - `GET /api/shopping_list/items`
+- `POST /api/shopping_list` (builds the ingredient list)
+- `POST /api/shopping_list/check`, `POST /api/shopping_list/uncheck`
 - `POST /api/shopping_list/add`
 - `POST /api/shopping_list/remove`
 - `POST /api/shopping_list/clear`

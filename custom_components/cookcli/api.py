@@ -49,6 +49,20 @@ class CookCLIApi:
                 f"Error communicating with CookCLI: {err}"
             ) from err
 
+    async def _post_json(self, path: str, data: dict | list) -> dict:
+        """Make a POST request and return the JSON response."""
+        try:
+            async with async_timeout.timeout(10):
+                resp = await self._session.post(
+                    f"{self._url}{path}", json=data
+                )
+                resp.raise_for_status()
+                return await resp.json()
+        except (aiohttp.ClientError, asyncio.TimeoutError) as err:
+            raise CookCLIConnectionError(
+                f"Error communicating with CookCLI: {err}"
+            ) from err
+
     async def async_get_stats(self) -> dict:
         """Get recipe and menu statistics."""
         return await self._get("/api/stats")
@@ -81,6 +95,18 @@ class CookCLIApi:
     async def async_clear_shopping_list(self) -> None:
         """Clear the shopping list."""
         await self._post("/api/shopping_list/clear")
+
+    async def async_generate_shopping_list(self, requests: list[dict]) -> dict:
+        """Get the ingredients, with checked state, for the given recipes."""
+        return await self._post_json("/api/shopping_list", requests)
+
+    async def async_check_ingredient(self, name: str) -> None:
+        """Tick an ingredient off the shopping list."""
+        await self._post("/api/shopping_list/check", {"name": name})
+
+    async def async_uncheck_ingredient(self, name: str) -> None:
+        """Un-tick an ingredient on the shopping list."""
+        await self._post("/api/shopping_list/uncheck", {"name": name})
 
     async def async_get_pantry_expiring(self, days: int = 7) -> list[dict]:
         """Get expiring pantry items."""

@@ -13,6 +13,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, Upda
 
 from .api import CookCLIApi, CookCLIApiError
 from .const import CONF_ACTIVE_MENU, DEFAULT_SCAN_INTERVAL, DOMAIN
+from .shopping import build_requests, flatten_ingredients
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -47,9 +48,29 @@ class CookCLICoordinator(DataUpdateCoordinator[dict[str, Any]]):
             return {
                 "stats": stats,
                 "shopping_items": shopping_items,
+                "shopping_ingredients": await self._async_ingredients(
+                    shopping_items
+                ),
                 "pantry_expiring": pantry_expiring,
                 "pantry_depleted": pantry_depleted,
                 "menu": menu,
             }
         except CookCLIApiError as err:
             raise UpdateFailed(f"Error fetching CookCLI data: {err}") from err
+
+    async def _async_ingredients(self, shopping_items: list[dict]) -> list[dict]:
+        """Ingredients for the recipes on the shopping list.
+
+        A recipe on the list that no longer parses makes CookCLI refuse the
+        whole list; that should not take the other entities down with it.
+        """
+        if not shopping_items:
+            return []
+        try:
+            generated = await self.api.async_generate_shopping_list(
+                build_requests(shopping_items)
+            )
+        except CookCLIApiError as err:
+            _LOGGER.warning("Could not build the CookCLI shopping list: %s", err)
+            return []
+        return flatten_ingredients(generated)
